@@ -54,7 +54,10 @@ x = y = np.linspace(0, 6, 300)
 X, Y = np.meshgrid(x, y)
 x = X.ravel()
 y = Y.ravel()
+# print(x)
+# print(np.vstack([x, y]))
 X = np.vstack([x, y]).T[:, [1, 0]]
+# X = np.vstack([x, y]).T
 z = target(x, y)
 
 
@@ -72,7 +75,7 @@ axis.axis([x.min(), x.max(), y.min(), y.max()])
 
 cb = fig.colorbar(im, )
 cb.set_label('Value')
-plt.show()
+# plt.show()
 
 util = UtilityFunction(kind='ucb',
                        kappa=10,
@@ -85,7 +88,10 @@ def posterior(bo, X):
     ur = unique_rows(bo._space.params)
     bo._gp.fit(bo._space.params[ur], bo._space.target[ur])
     mu, sigma2 = bo._gp.predict(X, return_std=True)
-    return mu, np.sqrt(sigma2), util.utility(X, bo._gp, bo._space.target.max())
+    ac = util.utility(X, bo._gp, bo._space.target.max())
+    return mu, np.sqrt(sigma2), ac
+
+
 
 def plot_2d(name=None):
 
@@ -114,19 +120,24 @@ def plot_2d(name=None):
 
     ax[1][1].set_title('Acquisition Function', fontdict={'size':15})
     im11 = ax[1][1].hexbin(x, y, C=ut, gridsize=gridsize, cmap=cm.jet, bins=None, vmin=0, vmax=8)
-
-    np.where(ut.reshape((300, 300)) == ut.max())[0]
-    np.where(ut.reshape((300, 300)) == ut.max())[1]
+    print(ut)
+    maxVal_x = np.where(ut.reshape((300, 300)) == ut.max())[0]
+    maxVal_y = np.where(ut.reshape((300, 300)) == ut.max())[1]
+    print(np.where(ut.reshape((300, 300)) == ut.max()))
+    print(maxVal_x)
+    print(maxVal_y)
 
     ax[1][1].plot([np.where(ut.reshape((300, 300)) == ut.max())[1]/50.,
                    np.where(ut.reshape((300, 300)) == ut.max())[1]/50.],
                   [0, 6],
                   'k-', lw=2, color='k')
+    # plt.show()
 
     ax[1][1].plot([0, 6],
                   [np.where(ut.reshape((300, 300)) == ut.max())[0]/50.,
                    np.where(ut.reshape((300, 300)) == ut.max())[0]/50.],
                   'k-', lw=2, color='k')
+    # plt.show()
 
     ax[1][1].axis([x.min(), x.max(), y.min(), y.max()])
 
@@ -140,10 +151,10 @@ def plot_2d(name=None):
     plt.tight_layout()
 
     # Save or show figure?
-    # fig.savefig('bo_eg_' + name + '.png')
-    plt.show()
+    fig.savefig('./figures/'+'bo_eg_' + name + '.png')
+    # plt.show()
     # plt.pause(3)
-    plt.close(fig)
+    # plt.close(fig)
 
 
 
