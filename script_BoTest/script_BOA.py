@@ -46,7 +46,7 @@ X, Y = np.meshgrid(x, y)
 x = X.ravel()
 y = Y.ravel()
 X = np.vstack([x, y]).T[:, [1, 0]]
-z = target(y, x)
+z = target(x, y)
 
 
 

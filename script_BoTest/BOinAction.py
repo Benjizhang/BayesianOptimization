@@ -18,21 +18,21 @@ def unique_rows(a):
     """
 
     # Sort array and kep track of where things should go back to
-    print(a)
-    print(a.T)
+    # print(a)
+    # print(a.T)
     order = np.lexsort(a.T)
-    print(order)
+    # print(order)
     reorder = np.argsort(order)
-    print(reorder)
+    # print(reorder)
 
     a = a[order]
-    print(a)
+    # print(a)
     diff = np.diff(a, axis=0)
-    print(diff)
+    # print(diff)
     ui = np.ones(len(a), 'bool')
-    print(ui)
+    # print(ui)
     ui[1:] = (diff != 0).any(axis=1)
-    print(ui)
+    # print(ui)
 
     return ui[reorder]
 
@@ -45,7 +45,7 @@ def target(x, y):
     d = np.sin(3.1415 * x)
     e = np.exp(-( (x - 5.5)**2/0.5 + (y - 5.5)**2/.5) )
     # return 2*a + b - c + 0.17 * d + 2*e
-    return 2*a + b - c
+    return -x ** 2 - (y - 4) ** 2 + 4
 
 
 
@@ -55,7 +55,7 @@ X, Y = np.meshgrid(x, y)
 x = X.ravel()
 y = Y.ravel()
 X = np.vstack([x, y]).T[:, [1, 0]]
-z = target(y, x)
+z = target(x, y)
 
 
 
@@ -72,6 +72,7 @@ axis.axis([x.min(), x.max(), y.min(), y.max()])
 
 cb = fig.colorbar(im, )
 cb.set_label('Value')
+plt.show()
 
 util = UtilityFunction(kind='ucb',
                        kappa=10,
@@ -142,7 +143,7 @@ def plot_2d(name=None):
     # fig.savefig('bo_eg_' + name + '.png')
     plt.show()
     # plt.pause(3)
-    # plt.close(fig)
+    plt.close(fig)
 
 
 
