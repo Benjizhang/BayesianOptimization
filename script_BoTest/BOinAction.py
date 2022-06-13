@@ -56,8 +56,8 @@ x = X.ravel()
 y = Y.ravel()
 # print(x)
 # print(np.vstack([x, y]))
-X = np.vstack([x, y]).T[:, [1, 0]]
-# X = np.vstack([x, y]).T
+# X = np.vstack([x, y]).T[:, [1, 0]]
+X = np.vstack([x, y]).T
 z = target(x, y)
 
 
