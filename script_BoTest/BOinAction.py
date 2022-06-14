@@ -1,3 +1,5 @@
+# one circle distribution
+
 from bayes_opt import BayesianOptimization, UtilityFunction
 import numpy as np
 
