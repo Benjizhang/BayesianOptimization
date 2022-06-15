@@ -74,7 +74,7 @@ def target(x, y):
     # a = np.exp(x+y)
     A,B,C = 3,4,-12     
     # a = np.exp(A*x + B*y + C)
-    b = np.exp(x-y)
+    b = np.exp(-(x-y))
     # a =  A*x + B*y + C
     return b
 
