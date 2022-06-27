@@ -186,10 +186,10 @@ def plot_2d(name=None):
     plt.tight_layout()
 
     # Save or show figure?
-    fig.savefig('./figures/fourLine/'+'boa_eg_' + name + '.png')
-    # plt.show()
+    # fig.savefig('./figures/fourLine/'+'boa_eg_' + name + '.png')
+    plt.show()
     # plt.pause(3)
-    # plt.close(fig)
+    plt.close(fig)
 
 def gen_slide_path(endPt, startPt={'x':0,'y':0}, num_pt = 11):
     ex = list(endPt.values())[0]

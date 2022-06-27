@@ -1,4 +1,4 @@
-# one-line distribution
+# one-line distribution (figures/oneLine/ei)
 # slide the probe
 # 
 
