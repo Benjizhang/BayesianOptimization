@@ -1,4 +1,4 @@
-# rectangle distribution
+# one-line distribution
 # slide the probe
 # 
 
@@ -85,25 +85,27 @@ def target(x, y):
     # axs.axis('equal')
     # plt.show()
     
-    if isinstance(x,Iterable):
-        a = []
-        for i in range(len(x)):
-            item = x[i]
-            if item > 3:
-                a.append(1.)
-            else:
-                a.append(0.)
-        a = np.array(a)
-    else:
-        if x > 3:
-            a = 1.0
-        else:
-            a = 0.0
+    # if isinstance(x,Iterable):
+    #     a = []
+    #     for i in range(len(x)):
+    #         item = x[i]
+    #         if item > 3:
+    #             a.append(1.)
+    #         else:
+    #             a.append(0.)
+    #     a = np.array(a)
+    # else:
+    #     if x > 3:
+    #         a = 1.0
+    #     else:
+    #         a = 0.0
     
     # a = np.exp(x+y)
-    
-    # a = np.exp(-(x - 1) ** 2 - (y - 3) ** 2 + 1)
-    return np.exp(a)
+    A,B,C = 3,4,-12     
+    # a = np.exp(A*x + B*y + C)
+    b = np.exp(x-y)
+    # a =  A*x + B*y + C
+    return b
 
 n = 1e5
 x = y = np.linspace(0, 6, 300)
@@ -116,14 +118,13 @@ y = Y.ravel()
 X = np.vstack([x, y]).T
 z = target(x, y)
 
-
-
-# zmin = 1
-# zmax = -9
-zmin = min(z)
-zmax = max(z)
-print(max(z))
+zmin = 0
+zmax = 10
+# zmin = min(z)
+# zmax = max(z)
 print(min(z))
+print(max(z))
+
 
 
 
@@ -241,7 +242,7 @@ plt.ioff()
 # -------------- slide --------------
 util = UtilityFunction(kind="ei", 
                     kappa = 2, 
-                    xi=0.0,
+                    xi=0.5,
                     kappa_decay=1,
                     kappa_decay_delay=0)
 curPt = {'x':0,'y':0}
