@@ -217,10 +217,10 @@ def plot_2d(ite, bo, XY, f_max, name=None):
     plt.tight_layout()
 
     ## Save or show figure?
-    # fig.savefig('./figures/fourLine/'+'boa_eg_' + name + '.png')
+    fig.savefig('./figures/GMSim/'+'boa_eg_' + name + '.png')
     # plt.show()
-    plt.pause(2)
-    plt.close(fig)
+    # plt.pause(2)
+    # plt.close(fig)
     
 
 ### target
@@ -419,10 +419,11 @@ for k in range(1,21):
         print('Cur Pos x {:.3f}, y {:.3f}'.format(intptx[i],intpty[i]))
         print('Drag force: {:.3f} N'.format(probePtz))
         bo.register(params=probePt_dict, target=probePtz)
-    plt.plot(goalx,goaly) 
-    plt.axis('scaled')
-    plt.axis([0, 0.25, 0,0.35])    
-    plt.pause(0.1)
+    ## plot the sliding path
+    # plt.plot(goalx,goaly) 
+    # plt.axis('scaled')
+    # plt.axis([0, 0.25, 0,0.35])    
+    # plt.pause(0.1)
     ## probe goes to the nextPt
     curPt = {'x':ex,'y':ey}
     plot_2d(k, bo, XY, 5, "{:03}".format(len(bo._space.params)))
