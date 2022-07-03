@@ -255,6 +255,29 @@ def dragF_exact(x,y,H=0.03):
     
     return Fd
 
+def dragF_noise(x,y,H=0.03):
+    A = 10728. # kg/m^3
+    g = 9.8067 # m/s^2
+    dc = 0.01 # m    
+    F_sigma = 1 # N
+    # Fd = 0.*x + 0.*y + A*g*dc*(H**2) + F_sigma * random.uniform(-1,1) # N
+
+    centx = 0.2
+    centy = 0.2
+    f_mean = A*g*dc*(H**2)
+    raise_coeff = 2.35
+    f_max = raise_coeff * f_mean
+    d_range = 0.04
+    d_cur = np.sqrt((x-centx)**2+(y-centy)**2)
+    F_noise = F_sigma * random.uniform(-1,1) # N
+    if round(d_cur,6) <= d_range:
+        coeff = (f_mean - f_max)/(d_range**2)
+        Fd = coeff*(d_cur**2) + f_max + F_noise
+    else:
+        Fd = f_mean + F_noise
+    
+    return Fd
+
 
 ### inObj
 def inObj(ptx,pty):
@@ -366,7 +389,7 @@ yp = 0.35
 yn = 0.0
 
 ## BOA init.
-bo = BayesianOptimization(f=dragF_exact, pbounds={'x': (0, xp), 'y': (0, yp)},
+bo = BayesianOptimization(f=dragF_noise, pbounds={'x': (0, xp), 'y': (0, yp)},
                     verbose=2,
                     random_state=1)
 plt.ioff()
@@ -388,10 +411,10 @@ zls = []
 for i in range(len(x)):
     curx = x[i]
     cury = y[i]
-    zls.append(dragF_exact(curx,cury,0.05))
+    zls.append(dragF_noise(curx,cury,0.05))
 z = np.array(zls)
 ## plot the init distribution
-# plotInitSandBox(x,y,np.array(zls))
+plotInitSandBox(x,y,np.array(zls))
 
 ## if given seed, goals would be identical for each run
 # random.seed(2)
@@ -415,7 +438,9 @@ for k in range(1,21):
         # form the point in dict. type
         probePt_dict = {'x':intptx[i],'y':intpty[i]}
         # probePtz = target(intptx[i],intpty[i],0.05)
-        probePtz = dragF_exact(intptx[i],intpty[i],0.05)
+        # probePtz = dragF_exact(intptx[i],intpty[i],0.05)
+        probePtz = dragF_noise(intptx[i],intpty[i],0.05)
+        
         print('Cur Pos x {:.3f}, y {:.3f}'.format(intptx[i],intpty[i]))
         print('Drag force: {:.3f} N'.format(probePtz))
         bo.register(params=probePt_dict, target=probePtz)
