@@ -234,12 +234,28 @@ def target(x, y, H=0.03):
 
     return Fd
 
-def target2(x,y,episilon):
-    a = np.exp(x+y-7)
-    b = np.exp(-x-y+5)
-    c = np.exp(-x+y-2)
-    d = np.exp(x-y-1)
-    return 4-(a+b+c+d)
+def dragF_exact(x,y,H=0.03):
+    A = 10728. # kg/m^3
+    g = 9.8067 # m/s^2
+    dc = 0.01 # m    
+    # F_sigma = 1 # N
+    # Fd = 0.*x + 0.*y + A*g*dc*(H**2) + F_sigma * random.uniform(-1,1) # N
+
+    centx = 0.2
+    centy = 0.2
+    f_mean = A*g*dc*(H**2)
+    raise_coeff = 2.35
+    f_max = raise_coeff * f_mean
+    d_range = 0.04
+    d_cur = np.sqrt((x-centx)**2+(y-centy)**2)
+    if round(d_cur,6) <= d_range:
+        coeff = (f_mean - f_max)/(d_range**2)
+        Fd = coeff*(d_cur**2) + f_max
+    else:
+        Fd = f_mean
+    
+    return Fd
+
 
 ### inObj
 def inObj(ptx,pty):
@@ -296,7 +312,7 @@ def gen_slide_path3(endPt, startPt={'x':0,'y':0}, d_c = 0.01):
 
     return intptx, intpty
 
-def plotInitSandBox(x,y,z):
+def plotInitSandBox_flip(x,y,z):
     # # move Origin to upper left corner
     
     ## initial distribution
@@ -327,7 +343,21 @@ def plotInitSandBox(x,y,z):
     cb.set_label('Value')
     plt.show()
 
+def plotInitSandBox(x,y,z):
+    ## normal layout
+    # plt.ion()
+    fig, axis = plt.subplots(1, 1)
+    axis.axis('scaled')
+    gridsize=88
+    im = axis.hexbin(x, y, C=z, gridsize=gridsize, cmap=cm.jet, bins=None, vmin=0, vmax=7)
+    # plt.text(0.1,0.22,'star')
+    xmin, xmax, ymin, ymax = axis.axis([x.min(), x.max(), y.min(), y.max()])
+    plt.ylabel("y")
+    plt.xlabel("x")
 
+    cb = fig.colorbar(im, )
+    cb.set_label('Value')
+    plt.pause(0.1)
 
 ################################################################
 SAFE_FORCE = 15.0
@@ -337,7 +367,7 @@ yp = 0.35
 yn = 0.0
 
 ## BOA init.
-bo = BayesianOptimization(f=None, pbounds={'x': (0, xp), 'y': (0, yp)},
+bo = BayesianOptimization(f=target, pbounds={'x': (0, xp), 'y': (0, yp)},
                     verbose=2,
                     random_state=1)
 plt.ioff()
@@ -354,7 +384,15 @@ X, Y = np.meshgrid(x, y)
 x = X.ravel()
 y = Y.ravel()
 XY = np.vstack([x, y]).T
-z = 0*x
+# z = 0*x
+zls = []
+for i in range(len(x)):
+    curx = x[i]
+    cury = y[i]
+    zls.append(dragF_exact(curx,cury,0.05))
+plotInitSandBox(x,y,np.array(zls))
+
+## if given seed, goals would be identical for each run
 # random.seed(2)
 
 ## probe slides in the granular media
