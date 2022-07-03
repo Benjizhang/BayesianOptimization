@@ -145,14 +145,14 @@ def plot_2d_flip(bo, XY, f_max, name=None):
     plt.close(fig)
 
 ### plot_2d
-def plot_2d(bo, XY, f_max, name=None):
+def plot_2d(ite, bo, XY, f_max, name=None):
 
     mu, s, ut = posterior(bo, XY)
     #self._space.params, self._space.target
     fig, ax = plt.subplots(2, 2)
     gridsize=88
      
-    # fig.suptitle('Bayesian Optimization in Action', fontdict={'size':30})
+    fig.suptitle('{}-th iteration'.format(ite), fontdict={'size':30})
     
     # GP regression output
     ax[0][0].set_title('GP Predicted Mean', fontdict={'size':15})
@@ -180,11 +180,12 @@ def plot_2d(bo, XY, f_max, name=None):
     # plt.pause(0.1)
 
     ax[1][1].set_title('Acquisition Function', fontdict={'size':15})    
-    im11 = ax[1][1].hexbin(x, y, C=ut, gridsize=gridsize, cmap=cm.jet, bins=None, vmin=0, vmax=f_max)
+    im11 = ax[1][1].hexbin(x, y, C=ut, gridsize=gridsize, cmap=cm.jet, bins=None, vmin=min(ut), vmax=max(ut))
     ax[1][1].axis('scaled')
     ax[1][1].axis([x.min(), x.max(), y.min(), y.max()])
     # plt.pause(0.1)
 
+    # region
     # print(ut)
     # maxVal_x = np.where(ut.reshape((175, 125)) == ut.max())[0]
     # maxVal_y = np.where(ut.reshape((175, 125)) == ut.max())[1]
@@ -203,7 +204,7 @@ def plot_2d(bo, XY, f_max, name=None):
     #                np.where(ut.reshape((175, 125)) == ut.max())[0]*0.35/175.],
     #               '-', lw=2, color='k')
     # plt.show()
-
+    # endregion
     
 
     for im, axis in zip([im00, im10, im01, im11], ax.flatten()):
@@ -215,13 +216,11 @@ def plot_2d(bo, XY, f_max, name=None):
 
     plt.tight_layout()
 
-    # Save or show figure?
+    ## Save or show figure?
     # fig.savefig('./figures/fourLine/'+'boa_eg_' + name + '.png')
     # plt.show()
-    # plt.close(fig)
     plt.pause(2)
     plt.close(fig)
-    # plt.ioff()
     
 
 ### target
@@ -367,13 +366,13 @@ yp = 0.35
 yn = 0.0
 
 ## BOA init.
-bo = BayesianOptimization(f=target, pbounds={'x': (0, xp), 'y': (0, yp)},
+bo = BayesianOptimization(f=dragF_exact, pbounds={'x': (0, xp), 'y': (0, yp)},
                     verbose=2,
                     random_state=1)
 plt.ioff()
-util = UtilityFunction(kind="ucb", 
+util = UtilityFunction(kind="ei", 
                     kappa = 2, 
-                    xi=0.8,
+                    xi=0.5,
                     kappa_decay=1,
                     kappa_decay_delay=0)
 curPt = {'x':0,'y':0}
@@ -390,7 +389,9 @@ for i in range(len(x)):
     curx = x[i]
     cury = y[i]
     zls.append(dragF_exact(curx,cury,0.05))
-plotInitSandBox(x,y,np.array(zls))
+z = np.array(zls)
+## plot the init distribution
+# plotInitSandBox(x,y,np.array(zls))
 
 ## if given seed, goals would be identical for each run
 # random.seed(2)
@@ -408,12 +409,13 @@ for k in range(1,21):
     goalx.append(ex)
     goaly.append(ey)
     print('relative goal x {:.3f}, y {:.3f}'.format(ex,ey))
-    intptx, intpty = gen_slide_path3(endPt=nextPt, startPt=curPt)
+    intptx, intpty = gen_slide_path3(endPt=nextPt, startPt=curPt, d_c = 0.05)
     # probe at these points (excluding start pt)
     for i in range(len(intptx))[1:]:
         # form the point in dict. type
         probePt_dict = {'x':intptx[i],'y':intpty[i]}
-        probePtz = target(intptx[i],intpty[i],0.05)
+        # probePtz = target(intptx[i],intpty[i],0.05)
+        probePtz = dragF_exact(intptx[i],intpty[i],0.05)
         print('Cur Pos x {:.3f}, y {:.3f}'.format(intptx[i],intpty[i]))
         print('Drag force: {:.3f} N'.format(probePtz))
         bo.register(params=probePt_dict, target=probePtz)
@@ -421,10 +423,8 @@ for k in range(1,21):
     plt.axis('scaled')
     plt.axis([0, 0.25, 0,0.35])    
     plt.pause(0.1)
-    plt.close()
-    # probe goes to the nextPt
-    # curPt = copy.deepcopy(nextPt)
+    ## probe goes to the nextPt
     curPt = {'x':ex,'y':ey}
-    plot_2d(bo, XY, 5, "{:03}".format(len(bo._space.params)))
+    plot_2d(k, bo, XY, 5, "{:03}".format(len(bo._space.params)))
 
 print('shut down')
