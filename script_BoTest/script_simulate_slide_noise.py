@@ -431,82 +431,83 @@ def plotInitSandBox(x,y,z):
     plt.pause(0.1)
 
 ################################################################
-SAFE_FORCE = 15.0
-xp = 0.25
-xn = 0.0
-yp = 0.35
-yn = 0.0
+if __name__ == '__main__':
+    SAFE_FORCE = 15.0
+    xp = 0.25
+    xn = 0.0
+    yp = 0.35
+    yn = 0.0
 
-## BOA init.
-bo = BayesianOptimization(f=dragF_noise3, pbounds={'x': (0, xp), 'y': (0, yp)},
-                    verbose=2,
-                    random_state=1)
-plt.ioff()
-util = UtilityFunction(kind="ei", 
-                    kappa = 2, 
-                    xi=0.5,
-                    kappa_decay=1,
-                    kappa_decay_delay=0)
-curPt = {'x':0,'y':0}
-## initial distribution in BOA
-x = np.linspace(0, xp, 125)
-y = np.linspace(0, yp, 175)
-X, Y = np.meshgrid(x, y)
-x = X.ravel()
-y = Y.ravel()
-XY = np.vstack([x, y]).T
-# z = 0*x
-zls = []
-# random.seed(233)
-f_sigma = 0
-for i in range(len(x)):
-    curx = x[i]
-    cury = y[i]
-    zls.append(dragF_noise3(curx,cury,0.05,f_sigma))
-z = np.array(zls)
-## plot the init distribution
-plotInitSandBox(x,y,np.array(zls))
+    ## BOA init.
+    bo = BayesianOptimization(f=dragF_noise3, pbounds={'x': (0, xp), 'y': (0, yp)},
+                        verbose=2,
+                        random_state=1)
+    plt.ioff()
+    util = UtilityFunction(kind="ei", 
+                        kappa = 2, 
+                        xi=0.5,
+                        kappa_decay=1,
+                        kappa_decay_delay=0)
+    curPt = {'x':0,'y':0}
+    ## initial distribution in BOA
+    x = np.linspace(0, xp, 125)
+    y = np.linspace(0, yp, 175)
+    X, Y = np.meshgrid(x, y)
+    x = X.ravel()
+    y = Y.ravel()
+    XY = np.vstack([x, y]).T
+    # z = 0*x
+    zls = []
+    # random.seed(233)
+    f_sigma = 0
+    for i in range(len(x)):
+        curx = x[i]
+        cury = y[i]
+        zls.append(dragF_noise3(curx,cury,0.05,f_sigma))
+    z = np.array(zls)
+    ## plot the init distribution
+    plotInitSandBox(x,y,np.array(zls))
 
-## if given seed, goals would be identical for each run
-# random.seed(2)
+    ## if given seed, goals would be identical for each run
+    # random.seed(2)
 
-## probe slides in the granular media
-goalx = [0]                   
-goaly = [0]
-# random.seed(233)
-plotPath = 0
-for k in range(1,31):
-    print("--------- {}-th slide ---------".format(k))
-    ######### cal. goal by BOA #########        
-    # BOA provides the relative goal
-    nextPt = bo.suggest(util) # dict type    
-    ex = list(nextPt.values())[0]
-    ey = list(nextPt.values())[1]
-    goalx.append(ex)
-    goaly.append(ey)
-    print('relative goal x {:.3f}, y {:.3f}'.format(ex,ey))
-    intptx, intpty = gen_slide_path3(endPt=nextPt, startPt=curPt, d_c = 0.01)
-    # probe at these points (excluding start pt)
-    for i in range(len(intptx))[1:]:
-        # form the point in dict. type
-        probePt_dict = {'x':intptx[i],'y':intpty[i]}
-        # probePtz = target(intptx[i],intpty[i],0.05)
-        # probePtz = dragF_exact(intptx[i],intpty[i],0.05)
-        # probePtz = dragF_noise(intptx[i],intpty[i],0.05)
-        probePtz = dragF_noise3(intptx[i],intpty[i],0.05,f_sigma)
-        
-        print('Cur Pos x {:.3f}, y {:.3f}'.format(intptx[i],intpty[i]))
-        print('Drag force: {:.3f} N'.format(probePtz))
-        bo.register(params=probePt_dict, target=probePtz)
-    if plotPath == 1:
-        # plot the sliding path
-        plt.plot(goalx,goaly) 
-        plt.axis('scaled')
-        plt.axis([0, 0.25, 0,0.35])    
-        plt.pause(0.1)
-        # probe goes to the nextPt
-    curPt = {'x':ex,'y':ey}
-    if k>= 10:
-        plot_2d(k, bo, XY, 7, f_sigma, "{:03}".format(len(bo._space.params)))
+    ## probe slides in the granular media
+    goalx = [0]                   
+    goaly = [0]
+    # random.seed(233)
+    plotPath = 0
+    for k in range(1,31):
+        print("--------- {}-th slide ---------".format(k))
+        ######### cal. goal by BOA #########        
+        # BOA provides the relative goal
+        nextPt = bo.suggest(util) # dict type    
+        ex = list(nextPt.values())[0]
+        ey = list(nextPt.values())[1]
+        goalx.append(ex)
+        goaly.append(ey)
+        print('relative goal x {:.3f}, y {:.3f}'.format(ex,ey))
+        intptx, intpty = gen_slide_path3(endPt=nextPt, startPt=curPt, d_c = 0.01)
+        # probe at these points (excluding start pt)
+        for i in range(len(intptx))[1:]:
+            # form the point in dict. type
+            probePt_dict = {'x':intptx[i],'y':intpty[i]}
+            # probePtz = target(intptx[i],intpty[i],0.05)
+            # probePtz = dragF_exact(intptx[i],intpty[i],0.05)
+            # probePtz = dragF_noise(intptx[i],intpty[i],0.05)
+            probePtz = dragF_noise3(intptx[i],intpty[i],0.05,f_sigma)
+            
+            print('Cur Pos x {:.3f}, y {:.3f}'.format(intptx[i],intpty[i]))
+            print('Drag force: {:.3f} N'.format(probePtz))
+            bo.register(params=probePt_dict, target=probePtz)
+        if plotPath == 1:
+            # plot the sliding path
+            plt.plot(goalx,goaly) 
+            plt.axis('scaled')
+            plt.axis([0, 0.25, 0,0.35])    
+            plt.pause(0.1)
+            # probe goes to the nextPt
+        curPt = {'x':ex,'y':ey}
+        if k>= 10:
+            plot_2d(k, bo, XY, 7, f_sigma, "{:03}".format(len(bo._space.params)))
 
-print('shut down')
+    print('shut down')
