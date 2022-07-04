@@ -11,7 +11,6 @@ from matplotlib import cm
 from matplotlib import mlab
 from matplotlib import gridspec
 import copy
-from collections import Iterable
 
 def unique_rows(a):
     """
@@ -116,7 +115,7 @@ cb.set_label('Value')
 # plot the boundary of box
 xbd = [3,4,2.5,1.5,3]
 ybd = [2,3,4.5,3.5,2]
-plt.plot(xbd,ybd,'k-', lw=2, color='k')
+plt.plot(xbd,ybd,'-', lw=2, color='k')
 axis.axis('equal')
 plt.show()
 
@@ -150,14 +149,14 @@ def plot_2d(name=None):
     im00 = ax[0][0].hexbin(x, y, C=mu, gridsize=gridsize, cmap=cm.jet, bins=None, vmin=zmin, vmax=zmax)
     ax[0][0].axis([x.min(), x.max(), y.min(), y.max()])
     ax[0][0].plot(bo._space.params[:, 0], bo._space.params[:, 1], 'D', markersize=4, color='k', label='Observations')
-    ax[0][0].plot(xbd,ybd,'k-', lw=2, color='k')
+    ax[0][0].plot(xbd,ybd,'-', lw=2, color='k')
 
 
     ax[0][1].set_title('Target Function', fontdict={'size':15})
     im10 = ax[0][1].hexbin(x, y, C=z, gridsize=gridsize, cmap=cm.jet, bins=None, vmin=zmin, vmax=zmax)
     ax[0][1].axis([x.min(), x.max(), y.min(), y.max()])
     ax[0][1].plot(bo._space.params[:, 0], bo._space.params[:, 1], 'D', markersize=4, color='k')
-    ax[0][1].plot(xbd,ybd,'k-', lw=2, color='k')
+    ax[0][1].plot(xbd,ybd,'-', lw=2, color='k')
 
 
     ax[1][0].set_title('Gausian Process Variance', fontdict={'size':15})
