@@ -145,14 +145,14 @@ def plot_2d_flip(bo, XY, f_max, name=None):
     plt.close(fig)
 
 ### plot_2d
-def plot_2d(ite, bo, XY, f_max, name=None):
+def plot_2d(ite, bo, XY, f_max, f_sigma, name=None):
 
     mu, s, ut = posterior(bo, XY)
     #self._space.params, self._space.target
     fig, ax = plt.subplots(2, 2)
     gridsize=88
      
-    fig.suptitle('{}-th iteration'.format(ite), fontdict={'size':30})
+    fig.suptitle('{}-th iteration, fsigma {} N'.format(ite,f_sigma), fontdict={'size':30})
     
     # GP regression output
     ax[0][0].set_title('GP Predicted Mean', fontdict={'size':15})
@@ -259,11 +259,35 @@ def dragF_noise(x,y,H=0.03):
     A = 10728. # kg/m^3
     g = 9.8067 # m/s^2
     dc = 0.01 # m    
-    F_sigma = 0 # N
+    F_sigma = 0.2 # N
     # Fd = 0.*x + 0.*y + A*g*dc*(H**2) + F_sigma * random.uniform(-1,1) # N
 
-    centx = 0.2
-    centy = 0.2
+    centx = 0.1
+    centy = 0.15
+    f_mean = A*g*dc*(H**2)
+    raise_coeff = 2.35
+    f_max = raise_coeff * f_mean
+    d_range = 0.04
+    d_cur = np.sqrt((x-centx)**2+(y-centy)**2)
+    F_noise = F_sigma * random.uniform(-1,1) # N
+    # print(random.uniform(-1,1))
+    if round(d_cur,6) <= d_range:
+        coeff = (f_mean - f_max)/(d_range**2)
+        Fd = coeff*(d_cur**2) + f_max + F_noise
+    else:
+        Fd = f_mean + F_noise
+    
+    return Fd
+
+def dragF_noise2(x,y,H=0.03,F_sigma=0.2):
+    A = 10728. # kg/m^3
+    g = 9.8067 # m/s^2
+    dc = 0.01 # m    
+    # N
+    # Fd = 0.*x + 0.*y + A*g*dc*(H**2) + F_sigma * random.uniform(-1,1) # N
+
+    centx = 0.1
+    centy = 0.15
     f_mean = A*g*dc*(H**2)
     raise_coeff = 2.35
     f_max = raise_coeff * f_mean
@@ -390,7 +414,7 @@ yp = 0.35
 yn = 0.0
 
 ## BOA init.
-bo = BayesianOptimization(f=dragF_noise, pbounds={'x': (0, xp), 'y': (0, yp)},
+bo = BayesianOptimization(f=dragF_noise2, pbounds={'x': (0, xp), 'y': (0, yp)},
                     verbose=2,
                     random_state=1)
 plt.ioff()
@@ -410,10 +434,11 @@ XY = np.vstack([x, y]).T
 # z = 0*x
 zls = []
 # random.seed(233)
+f_sigma = 0.2
 for i in range(len(x)):
     curx = x[i]
     cury = y[i]
-    zls.append(dragF_noise(curx,cury,0.05))
+    zls.append(dragF_noise2(curx,cury,0.05,f_sigma))
 z = np.array(zls)
 ## plot the init distribution
 plotInitSandBox(x,y,np.array(zls))
@@ -443,7 +468,8 @@ for k in range(1,21):
         probePt_dict = {'x':intptx[i],'y':intpty[i]}
         # probePtz = target(intptx[i],intpty[i],0.05)
         # probePtz = dragF_exact(intptx[i],intpty[i],0.05)
-        probePtz = dragF_noise(intptx[i],intpty[i],0.05)
+        # probePtz = dragF_noise(intptx[i],intpty[i],0.05)
+        probePtz = dragF_noise2(intptx[i],intpty[i],0.05,f_sigma)
         
         print('Cur Pos x {:.3f}, y {:.3f}'.format(intptx[i],intpty[i]))
         print('Drag force: {:.3f} N'.format(probePtz))
@@ -456,6 +482,7 @@ for k in range(1,21):
         plt.pause(0.1)
         # probe goes to the nextPt
     curPt = {'x':ex,'y':ey}
-    plot_2d(k, bo, XY, 5, "{:03}".format(len(bo._space.params)))
+    if k >= 20:
+        plot_2d(k, bo, XY, 7, f_sigma, "{:03}".format(len(bo._space.params)))
 
 print('shut down')
