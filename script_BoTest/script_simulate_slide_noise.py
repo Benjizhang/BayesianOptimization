@@ -303,6 +303,30 @@ def dragF_noise2(x,y,H=0.03,F_sigma=0.2):
     
     return Fd
 
+def dragF_noise3(x,y,H=0.03,F_sigma=0.2):
+    ## change the model of jamming
+    A = 10728. # kg/m^3
+    g = 9.8067 # m/s^2
+    dc = 0.01 # m 
+
+    centx = 0.1
+    centy = 0.15
+    f_mean = A*g*dc*(H**2)
+    raise_coeff = 2.5
+    f_max = raise_coeff * f_mean
+    d_range = 0.04
+    d_cur = np.sqrt((x-centx)**2+(y-centy)**2)
+    F_noise = F_sigma * random.uniform(-1,1) # N
+    # print(random.uniform(-1,1))
+    if round(d_cur,6) <= d_range:
+        cc = f_max
+        bb = 2*(f_mean - f_max)/d_range
+        aa = -(f_mean - f_max)/(d_range**2)
+        Fd = aa*(d_cur**2) + bb * d_cur + cc + F_noise
+    else:
+        Fd = f_mean + F_noise
+    
+    return Fd
 
 ### inObj
 def inObj(ptx,pty):
@@ -414,7 +438,7 @@ yp = 0.35
 yn = 0.0
 
 ## BOA init.
-bo = BayesianOptimization(f=dragF_noise2, pbounds={'x': (0, xp), 'y': (0, yp)},
+bo = BayesianOptimization(f=dragF_noise3, pbounds={'x': (0, xp), 'y': (0, yp)},
                     verbose=2,
                     random_state=1)
 plt.ioff()
@@ -434,11 +458,11 @@ XY = np.vstack([x, y]).T
 # z = 0*x
 zls = []
 # random.seed(233)
-f_sigma = 0.5
+f_sigma = 0
 for i in range(len(x)):
     curx = x[i]
     cury = y[i]
-    zls.append(dragF_noise2(curx,cury,0.05,f_sigma))
+    zls.append(dragF_noise3(curx,cury,0.05,f_sigma))
 z = np.array(zls)
 ## plot the init distribution
 plotInitSandBox(x,y,np.array(zls))
@@ -451,7 +475,7 @@ goalx = [0]
 goaly = [0]
 # random.seed(233)
 plotPath = 0
-for k in range(1,21):
+for k in range(1,31):
     print("--------- {}-th slide ---------".format(k))
     ######### cal. goal by BOA #########        
     # BOA provides the relative goal
@@ -469,7 +493,7 @@ for k in range(1,21):
         # probePtz = target(intptx[i],intpty[i],0.05)
         # probePtz = dragF_exact(intptx[i],intpty[i],0.05)
         # probePtz = dragF_noise(intptx[i],intpty[i],0.05)
-        probePtz = dragF_noise2(intptx[i],intpty[i],0.05,f_sigma)
+        probePtz = dragF_noise3(intptx[i],intpty[i],0.05,f_sigma)
         
         print('Cur Pos x {:.3f}, y {:.3f}'.format(intptx[i],intpty[i]))
         print('Drag force: {:.3f} N'.format(probePtz))
@@ -482,7 +506,7 @@ for k in range(1,21):
         plt.pause(0.1)
         # probe goes to the nextPt
     curPt = {'x':ex,'y':ey}
-    if k%10 == 0:
+    if k>= 10:
         plot_2d(k, bo, XY, 7, f_sigma, "{:03}".format(len(bo._space.params)))
 
 print('shut down')
