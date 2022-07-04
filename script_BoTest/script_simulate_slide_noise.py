@@ -218,9 +218,9 @@ def plot_2d(ite, bo, XY, f_max, f_sigma, name=None):
 
     ## Save or show figure?
     # fig.savefig('./figures/GMSim/'+'boa_eg_' + name + '.png')
-    # plt.show()
-    plt.pause(2)
-    plt.close(fig)
+    plt.show()
+    # plt.pause(2)
+    # plt.close(fig)
     
 
 ### target
@@ -289,7 +289,7 @@ def dragF_noise2(x,y,H=0.03,F_sigma=0.2):
     centx = 0.1
     centy = 0.15
     f_mean = A*g*dc*(H**2)
-    raise_coeff = 2.35
+    raise_coeff = 2.5
     f_max = raise_coeff * f_mean
     d_range = 0.04
     d_cur = np.sqrt((x-centx)**2+(y-centy)**2)
@@ -434,7 +434,7 @@ XY = np.vstack([x, y]).T
 # z = 0*x
 zls = []
 # random.seed(233)
-f_sigma = 0.2
+f_sigma = 0.5
 for i in range(len(x)):
     curx = x[i]
     cury = y[i]
@@ -482,7 +482,7 @@ for k in range(1,21):
         plt.pause(0.1)
         # probe goes to the nextPt
     curPt = {'x':ex,'y':ey}
-    if k >= 20:
+    if k%10 == 0:
         plot_2d(k, bo, XY, 7, f_sigma, "{:03}".format(len(bo._space.params)))
 
 print('shut down')
