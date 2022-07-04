@@ -259,7 +259,7 @@ def dragF_noise(x,y,H=0.03):
     A = 10728. # kg/m^3
     g = 9.8067 # m/s^2
     dc = 0.01 # m    
-    F_sigma = 1 # N
+    F_sigma = 0 # N
     # Fd = 0.*x + 0.*y + A*g*dc*(H**2) + F_sigma * random.uniform(-1,1) # N
 
     centx = 0.2
@@ -270,6 +270,7 @@ def dragF_noise(x,y,H=0.03):
     d_range = 0.04
     d_cur = np.sqrt((x-centx)**2+(y-centy)**2)
     F_noise = F_sigma * random.uniform(-1,1) # N
+    # print(random.uniform(-1,1))
     if round(d_cur,6) <= d_range:
         coeff = (f_mean - f_max)/(d_range**2)
         Fd = coeff*(d_cur**2) + f_max + F_noise
@@ -408,6 +409,7 @@ y = Y.ravel()
 XY = np.vstack([x, y]).T
 # z = 0*x
 zls = []
+# random.seed(233)
 for i in range(len(x)):
     curx = x[i]
     cury = y[i]
@@ -422,6 +424,8 @@ plotInitSandBox(x,y,np.array(zls))
 ## probe slides in the granular media
 goalx = [0]                   
 goaly = [0]
+# random.seed(233)
+plotPath = 0
 for k in range(1,21):
     print("--------- {}-th slide ---------".format(k))
     ######### cal. goal by BOA #########        
@@ -444,12 +448,13 @@ for k in range(1,21):
         print('Cur Pos x {:.3f}, y {:.3f}'.format(intptx[i],intpty[i]))
         print('Drag force: {:.3f} N'.format(probePtz))
         bo.register(params=probePt_dict, target=probePtz)
-    ## plot the sliding path
-    # plt.plot(goalx,goaly) 
-    # plt.axis('scaled')
-    # plt.axis([0, 0.25, 0,0.35])    
-    # plt.pause(0.1)
-    ## probe goes to the nextPt
+    if plotPath == 1:
+        # plot the sliding path
+        plt.plot(goalx,goaly) 
+        plt.axis('scaled')
+        plt.axis([0, 0.25, 0,0.35])    
+        plt.pause(0.1)
+        # probe goes to the nextPt
     curPt = {'x':ex,'y':ey}
     plot_2d(k, bo, XY, 5, "{:03}".format(len(bo._space.params)))
 
