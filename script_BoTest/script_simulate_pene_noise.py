@@ -468,7 +468,7 @@ if __name__ == '__main__':
     # z = 0*x
     zls = []
     # random.seed(233)
-    f_sigma = 0
+    f_sigma = 1
     for i in range(len(x)):
         curx = x[i]
         cury = y[i]
@@ -481,8 +481,8 @@ if __name__ == '__main__':
     # random.seed(2)
 
     ## probe slides in the granular media
-    goalx = [0]                   
-    goaly = [0]
+    goalx = []                   
+    goaly = []
     # random.seed(233)
     plotPath = 1
     for k in range(1,61):
@@ -509,7 +509,8 @@ if __name__ == '__main__':
             plt.pause(0.1)
             # probe goes to the nextPt
         curPt = {'x':ex,'y':ey}
-        if k%10==0:
+        if k >=30 and k%10 ==0:
+        # if k >=30:
             plot_2d(k, bo, XY, 7, f_sigma, "{:03}".format(len(bo._space.params)))
 
     print('shut down')
