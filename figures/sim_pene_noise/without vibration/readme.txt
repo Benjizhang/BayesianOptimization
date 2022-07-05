@@ -34,3 +34,5 @@ exp12
 small, 0.04, fixed, 60: bad 
 exp13
 large, 0.04, fixed, 60: good 
+exp14
+small, 0.04, [.01,.1], 30: good

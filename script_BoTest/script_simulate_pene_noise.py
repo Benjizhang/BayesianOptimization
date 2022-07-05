@@ -11,8 +11,9 @@ import random
 from sklearn.gaussian_process.kernels import RBF,Matern
 # kernel = RBF(length_scale=8, length_scale_bounds='fixed')
 # kernel = Matern(length_scale=1, length_scale_bounds='fixed',nu=np.inf)
-lenScaleBound ='fixed'
+# lenScaleBound ='fixed'
 # lenScaleBound = (1e-5, 1e5)
+lenScaleBound = (0.01, 0.1)
 kernel = Matern(length_scale=0.04, length_scale_bounds=lenScaleBound, nu=np.inf)
 str_kernel = str(kernel)
 
