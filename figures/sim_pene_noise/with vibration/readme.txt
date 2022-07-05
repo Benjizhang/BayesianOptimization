@@ -29,8 +29,8 @@ small, 0.04, fixed, 60: not good
 exp11
 small, 0.08, [.01,.2], 30: good
 exp12
-small, 0.04, , 60:
+small, 0.04, [.01,.1], 30: good 
 exp13
-small, 0.04, , 60:
+small, 0.04, [.01,.2], : 
 exp14
 small, 0.04, , 60:

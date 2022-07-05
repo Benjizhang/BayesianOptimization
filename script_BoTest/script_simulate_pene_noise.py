@@ -1,5 +1,6 @@
 # script to simulate the probe [penetrating] into the granular media
-# 
+# with vibration/noise for the dara force
+#
 # Z Zhang
 # 07/2022
 
@@ -484,7 +485,7 @@ if __name__ == '__main__':
     goalx = []                   
     goaly = []
     # random.seed(233)
-    plotPath = 1
+    plotPath = 0
     for k in range(1,61):
         print("--------- {}-th slide ---------".format(k))
         ######### cal. goal by BOA #########        
@@ -509,7 +510,7 @@ if __name__ == '__main__':
             plt.pause(0.1)
             # probe goes to the nextPt
         curPt = {'x':ex,'y':ey}
-        if k >=30 and k%10 ==0:
+        if k >=20 and k%10 ==0:
         # if k >=30:
             plot_2d(k, bo, XY, 7, f_sigma, "{:03}".format(len(bo._space.params)))
 
