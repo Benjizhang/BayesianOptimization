@@ -11,8 +11,8 @@ import random
 from sklearn.gaussian_process.kernels import RBF,Matern
 # kernel = RBF(length_scale=8, length_scale_bounds='fixed')
 # kernel = Matern(length_scale=1, length_scale_bounds='fixed',nu=np.inf)
-# lenScaleBound ='fixed'
-lenScaleBound = (1e-5, 1e5)
+lenScaleBound ='fixed'
+# lenScaleBound = (1e-5, 1e5)
 kernel = Matern(length_scale=0.04, length_scale_bounds=lenScaleBound, nu=np.inf)
 str_kernel = str(kernel)
 
@@ -221,13 +221,13 @@ def plot_2d(ite, bo, XY, f_max, f_sigma, name=None):
     if name is None:
         name = '_'
 
-    plt.tight_layout()
+    # plt.tight_layout()
 
     ## Save or show figure?
     # fig.savefig('./figures/GMSim/'+'boa_eg_' + name + '.png')
     plt.show()
     # plt.pause(2)
-    plt.close(fig)
+    # plt.close(fig)
     
 
 ### target
@@ -474,7 +474,7 @@ if __name__ == '__main__':
         zls.append(dragF_noise3(curx,cury,0.05,f_sigma))
     z = np.array(zls)
     ## plot the init distribution
-    plotInitSandBox(x,y,np.array(zls))
+    # plotInitSandBox(x,y,np.array(zls))
 
     ## if given seed, goals would be identical for each run
     # random.seed(2)
@@ -484,7 +484,7 @@ if __name__ == '__main__':
     goaly = [0]
     # random.seed(233)
     plotPath = 1
-    for k in range(1,31):
+    for k in range(1,61):
         print("--------- {}-th slide ---------".format(k))
         ######### cal. goal by BOA #########        
         # BOA provides the relative goal
@@ -494,34 +494,21 @@ if __name__ == '__main__':
         goalx.append(ex)
         goaly.append(ey)
         print('relative goal x {:.3f}, y {:.3f}'.format(ex,ey))
-        # intptx, intpty = gen_slide_path3(endPt=nextPt, startPt=curPt, d_c = 0.01)
-        ## probe at these points (excluding start pt)
-        # for i in range(len(intptx))[1:]:
-        #     # form the point in dict. type
-        #     probePt_dict = {'x':intptx[i],'y':intpty[i]}
-        #     # probePtz = target(intptx[i],intpty[i],0.05)
-        #     # probePtz = dragF_exact(intptx[i],intpty[i],0.05)
-        #     # probePtz = dragF_noise(intptx[i],intpty[i],0.05)
-        #     probePtz = dragF_noise3(intptx[i],intpty[i],0.05,f_sigma)
-            
-        #     print('Cur Pos x {:.3f}, y {:.3f}'.format(intptx[i],intpty[i]))
-        #     print('Drag force: {:.3f} N'.format(probePtz))
-        #     bo.register(params=probePt_dict, target=probePtz)
-
         ### penetrate into the goals ###
         probePtz = dragF_noise3(ex,ey,0.05,f_sigma)
         bo.register(params=nextPt, target=probePtz)
         print('Cur Pos x {:.3f}, y {:.3f}'.format(ex,ey))
         print('Drag force: {:.3f} N'.format(probePtz))
         if plotPath == 1:
-            # plot the sliding path
+            # plotInitSandBox(x,y,np.array(zls))
+            # plot the pentration points
             plt.plot(goalx,goaly,'*') 
             plt.axis('scaled')
             plt.axis([0, 0.25, 0,0.35])    
             plt.pause(0.1)
             # probe goes to the nextPt
         curPt = {'x':ex,'y':ey}
-        if k>= 20:
+        if k%10==0:
             plot_2d(k, bo, XY, 7, f_sigma, "{:03}".format(len(bo._space.params)))
 
     print('shut down')
