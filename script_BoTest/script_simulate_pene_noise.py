@@ -10,7 +10,11 @@ from matplotlib import cm
 import random
 from sklearn.gaussian_process.kernels import RBF,Matern
 # kernel = RBF(length_scale=8, length_scale_bounds='fixed')
-kernel = Matern(length_scale=8, length_scale_bounds='fixed',nu=2.5)
+# kernel = Matern(length_scale=1, length_scale_bounds='fixed',nu=np.inf)
+# lenScaleBound ='fixed'
+lenScaleBound = (1e-5, 1e5)
+kernel = Matern(length_scale=0.04, length_scale_bounds=lenScaleBound, nu=np.inf)
+str_kernel = str(kernel)
 
 ##--- BOA related codes ---##
 
@@ -152,10 +156,10 @@ def plot_2d(ite, bo, XY, f_max, f_sigma, name=None):
 
     mu, s, ut = posterior(bo, XY)
     #self._space.params, self._space.target
-    fig, ax = plt.subplots(2, 2)
+    fig, ax = plt.subplots(2, 2, figsize=(9, 8))
     gridsize=88
      
-    fig.suptitle('Penetrate: {}-th iteration, fsigma {} N'.format(ite,f_sigma), fontdict={'size':30})
+    fig.suptitle('Penetrate: {}-th ite, fsigma {} N, {} {}'.format(ite,f_sigma,str_kernel,kernel.length_scale_bounds), fontdict={'size':30})
     
     # GP regression output
     ax[0][0].set_title('GP Predicted Mean', fontdict={'size':15})
@@ -221,8 +225,8 @@ def plot_2d(ite, bo, XY, f_max, f_sigma, name=None):
 
     ## Save or show figure?
     # fig.savefig('./figures/GMSim/'+'boa_eg_' + name + '.png')
-    # plt.show()
-    plt.pause(2)
+    plt.show()
+    # plt.pause(2)
     plt.close(fig)
     
 
