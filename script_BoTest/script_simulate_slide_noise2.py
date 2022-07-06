@@ -14,9 +14,11 @@ from sklearn.gaussian_process.kernels import RBF,Matern
 # kernel = RBF(length_scale=8, length_scale_bounds='fixed')
 # kernel = Matern(length_scale=1, length_scale_bounds='fixed',nu=np.inf)
 # lenScaleBound ='fixed'
-# lenScaleBound = (1e-5, 1e5)
-lenScaleBound = (0.01, 0.1)
+lenScaleBound = (1e-5, 1e5)
+# lenScaleBound = (0.01, 0.2)
 kernel = Matern(length_scale=0.04, length_scale_bounds=lenScaleBound, nu=np.inf)
+# kernel = Matern(length_scale=0.04, length_scale_bounds=lenScaleBound, nu=2.5)
+# kernel = Matern(length_scale=0.04, length_scale_bounds=lenScaleBound, nu=1.5)
 str_kernel = str(kernel)
 
 ##--- BOA related codes ---##
@@ -483,8 +485,8 @@ if __name__ == '__main__':
     # random.seed(2)
 
     ## probe slides in the granular media
-    goalx = []                   
-    goaly = []
+    goalx = [0]                   
+    goaly = [0]
     # random.seed(233)
     plotPath = 1
     for k in range(1,31):
@@ -521,8 +523,8 @@ if __name__ == '__main__':
         
         # probe goes to the nextPt
         curPt = {'x':ex,'y':ey}
-        if k >=10 and k%10 ==0:
-        # if k >=30:
+        if k >=30 and k%10 ==0:
+        # if k >=1:
             plot_2d(k, bo, XY, 7, f_sigma, "{:03}".format(len(bo._space.params)))
 
     print('shut down')
