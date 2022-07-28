@@ -1,4 +1,6 @@
 # script to simulate the probe with [spiral] traj. in the granular media
+# using the data collected from exp 0728154410
+# also given other shcemes about the shape estimation by BOA
 #
 # Z Zhang
 # 07/2022
@@ -16,7 +18,7 @@ from smooth_f import smooth_drag_force
 # kernel = Matern(length_scale=1, length_scale_bounds='fixed',nu=np.inf)
 lenScaleBound ='fixed'
 # lenScaleBound = (1e-5, 1e5)
-# lenScaleBound = (0.01, 0.2)
+# lenScaleBound = (0.01, 0.02)
 kernel = Matern(length_scale=0.04, length_scale_bounds=lenScaleBound, nu=np.inf)
 # kernel = Matern(length_scale=0.04, length_scale_bounds=lenScaleBound, nu=2.5)
 # kernel = Matern(length_scale=0.04, length_scale_bounds=lenScaleBound, nu=1.5)
@@ -164,7 +166,7 @@ def plot_2d(ite, bo, XY, f_max, f_sigma, name=None):
     #self._space.params, self._space.target
     fig, ax = plt.subplots(2, 2, figsize=(9, 8))
     gridsize=88
-     
+    
     fig.suptitle('Slide: {}-th ite, fsigma {} N, {} {}'.format(ite,f_sigma,str_kernel,kernel.length_scale_bounds), fontdict={'size':30})
     
     # GP regression output
@@ -172,7 +174,7 @@ def plot_2d(ite, bo, XY, f_max, f_sigma, name=None):
     im00 = ax[0][0].hexbin(x, y, C=mu, gridsize=gridsize, cmap=cm.jet, bins=None, vmin=0, vmax=f_max)
     ax[0][0].axis('scaled')
     ax[0][0].axis([x.min(), x.max(), y.min(), y.max()])
-    # ax[0][0].plot(bo._space.params[:, 0], bo._space.params[:, 1], 'D', markersize=4, color='k', label='Observations')
+    ax[0][0].plot(bo._space.params[:, 0], bo._space.params[:, 1], 'D', markersize=1, color='k', label='Observations')
     # ax[0][0].plot(xbd,ybd,'k-', lw=2, color='k')    
     # plt.pause(0.1)
 
@@ -232,10 +234,66 @@ def plot_2d(ite, bo, XY, f_max, f_sigma, name=None):
     ## Save or show figure?
     # fig.savefig('./figures/GMSim/'+'boa_eg_' + name + '.png')
     plt.ioff()
-    plt.show()
-    # plt.pause(2)
+    # plt.show()
+    plt.pause(2)
     # plt.close(fig)
     
+def plot_2d_wObj(ite, bo, XY, f_max, f_sigma, name=None):
+
+    mu, s, ut = posterior(bo, XY)
+    #self._space.params, self._space.target
+    fig, ax = plt.subplots(2, 2, figsize=(9, 8))
+    gridsize=88
+    
+    fig.suptitle('Slide: {}-th ite, fsigma {} N, {} {}'.format(ite,f_sigma,str_kernel,kernel.length_scale_bounds), fontdict={'size':30})
+    
+    # GP regression output
+    ax[0][0].set_title('GP Predicted Mean', fontdict={'size':15})
+    im00 = ax[0][0].hexbin(x, y, C=mu, gridsize=gridsize, cmap=cm.jet, bins=None, vmin=0, vmax=f_max)
+    ax[0][0].axis('scaled')
+    ax[0][0].axis([x.min(), x.max(), y.min(), y.max()])
+    ax[0][0].plot(bo._space.params[:, 0], bo._space.params[:, 1], 'D', markersize=1, color='k', label='Observations')
+    ax[0][0].plot([0.05,0.1,0.1,0.05,0.05],[0.15,0.15,0.2,0.2,0.15],'k-')
+    # ax[0][0].plot(xbd,ybd,'k-', lw=2, color='k')    
+    # plt.pause(0.1)
+
+    ax[0][1].set_title('Target Function', fontdict={'size':15})
+    im10 = ax[0][1].hexbin(x, y, C=z, gridsize=gridsize, cmap=cm.jet, bins=None, vmin=0, vmax=f_max)
+    ax[0][1].axis('scaled')
+    ax[0][1].axis([x.min(), x.max(), y.min(), y.max()])
+    # ax[0][1].plot(bo._space.params[:, 0], bo._space.params[:, 1], 'D', markersize=4, color='k')
+    # print(bo._space.target)
+    # len(bo._space.target)
+    # ax[0][1].plot(xbd,ybd,'k-', lw=2, color='k')    
+    # plt.pause(0.1)
+
+    ax[1][0].set_title('GP Variance', fontdict={'size':15})
+    im01 = ax[1][0].hexbin(x, y, C=s, gridsize=gridsize, cmap=cm.jet, bins=None, vmin=0, vmax=1)
+    ax[1][0].axis('scaled')
+    ax[1][0].axis([x.min(), x.max(), y.min(), y.max()])    
+    # plt.pause(0.1)
+
+    ax[1][1].set_title('Acquisition Function', fontdict={'size':15})    
+    im11 = ax[1][1].hexbin(x, y, C=ut, gridsize=gridsize, cmap=cm.jet, bins=None, vmin=min(ut), vmax=max(ut))
+    ax[1][1].axis('scaled')
+    ax[1][1].axis([x.min(), x.max(), y.min(), y.max()])
+    # plt.pause(0.1)    
+
+    for im, axis in zip([im00, im10, im01, im11], ax.flatten()):
+        cb = fig.colorbar(im, ax=axis)
+        # cb.set_label('Value')
+
+    if name is None:
+        name = '_'
+
+    # plt.tight_layout()
+
+    ## Save or show figure?
+    # fig.savefig('./figures/GMSim/'+'boa_eg_' + name + '.png')
+    plt.ioff()
+    # plt.show()
+    plt.pause(2)
+    # plt.close(fig)
 
 ### target
 def target(x, y, H=0.03):
@@ -463,7 +521,7 @@ if __name__ == '__main__':
                         xi=0.5,
                         kappa_decay=1,
                         kappa_decay_delay=0)
-    curPt = {'x':0,'y':0}
+    curPt = {'x':0.1,'y':0}
     ## initial distribution in BOA
     x = np.linspace(0, xp, 125)
     y = np.linspace(0, yp, 175)
@@ -506,23 +564,113 @@ if __name__ == '__main__':
         # probePtz = dragF_noise3(ex,ey,0.05,f_sigma)
         # bo.register(params=nextPt, target=probePtz)
         
-        ### slide to the goal ###
-        intptx, intpty = gen_slide_path3(endPt=nextPt, startPt=curPt, d_c = 0.01)
-        for i in range(len(intptx))[1:]:
-            ## form the point in dict. type
-            probePt_dict = {'x':intptx[i],'y':intpty[i]}
-            probePtz = dragF_noise3(intptx[i],intpty[i],0.05,f_sigma)
-            ##------- main contribution -------##
-            ## smooth the drag forces measured from FT300s
-            s_out, f_out = smooth_drag_force(A,0.05,1,probePtz,0.01)            
-            print('Cur Pos x {:.3f}, y {:.3f}, s {}'.format(intptx[i],intpty[i],s_out))
-            print('Drag   force: {:.3f} N'.format(probePtz))
-            print('Smooth force: {:.3f} N'.format(f_out))
-            bo.register(params=probePt_dict, target=f_out)     
-            if s_out == 'jamming':
-                print('===== jamming =====')
-            ##======= main contribution =======##       
+        ## [shceme 1] using 'smooth_drag_force'
+        ### slides to the goal ###
+        # intptx, intpty = gen_slide_path3(endPt=nextPt, startPt=curPt, d_c = 0.01)
+        # for i in range(len(intptx))[1:]:
+        #     ## form the point in dict. type
+        #     probePt_dict = {'x':intptx[i],'y':intpty[i]}
+        #     probePtz = dragF_noise3(intptx[i],intpty[i],0.05,f_sigma)
+        #     ##------- main contribution -------##
+        #     ## smooth the drag forces measured from FT300s
+        #     s_out, f_out = smooth_drag_force(A,0.05,1,probePtz,0.01)            
+        #     print('Cur Pos x {:.3f}, y {:.3f}, s {}'.format(intptx[i],intpty[i],s_out))
+        #     print('Drag   force: {:.3f} N'.format(probePtz))
+        #     print('Smooth force: {:.3f} N'.format(f_out))
+        #     bo.register(params=probePt_dict, target=f_out)     
+        #     if s_out == 'jamming':
+        #         print('===== jamming =====')
+        #     ##======= main contribution =======##       
         
+        ## [shceme 2] 
+        ### using collected data (slide1-slide15)
+        # data = [[1020,0.1003,0.0099,3],
+        #     # [2263,0.1006,0.0199,3],
+        #     # [3499,0.1008,0.0299,3],
+        #     [4735,0.1011,0.0399,3],
+        #     # [5967,0.1013,0.0499,3],
+        #     # [7199,0.1015,0.0599,3],
+        #     [8430,0.1017,0.0699,3],
+        #     [9564,0.1065,0.0776,7.0032],
+        #     [980,0.1084,0.0871,7.062],
+        #     [382,0.1064,0.0834,7.004],
+        #     [952,0.1093,0.0924,7.2265],
+        #     [363,0.1069,0.0893,7.0628],
+        #     [863,0.1129,0.0959,7.0981],
+        #     [413,0.1115,0.0915,7.1347],
+        #     [845,0.118,0.0973,7.0131],
+        #     [868,0.1239,0.1039,7.1997],
+        #     [256,0.1213,0.1036,7.3713],
+        #     [965,0.1237,0.113,7.0655],[594,0.1286,0.1089,7.0397],[910,0.1333,0.1168,7.0449],[461,0.1332,0.1118,7.0343],[1022,0.133,0.1218,7.1733],
+        #     ]
+        # for row in data:
+        #     print(row)
+        #     ## form the point in dict. type
+        #     probePt_dict = {'x':row[1],'y':row[2]}
+        #     f_out = row[3]
+        #     bo.register(params=probePt_dict, target=f_out) 
+        #     plot_2d(k, bo, XY, 10, 0, "{:03}".format(len(bo._space.params)))
+
+        ## [shceme 3] 
+        # ### cannot get into the object
+        # intptx, intpty = gen_slide_path3(endPt=nextPt, startPt=curPt, d_c = 0.01)
+        # obj_xmin = 0.05
+        # obj_xmax = 0.1
+        # obj_ymin = 0.15
+        # obj_ymax = 0.2
+        # obj_cent = [(obj_xmin+obj_xmax)/2,(obj_ymin+obj_ymax)/2]
+        # obj_range = np.sqrt((obj_xmax-obj_xmin)**2+(obj_ymax-obj_ymin)**2)*0.8
+        # for i in range(len(intptx))[1:]:
+        #     if not (obj_xmin <= intptx[i] and intptx[i] <= obj_xmax and obj_ymin <= intpty[i] and intpty[i]<=obj_ymax):
+        #         probePt_dict = {'x':intptx[i],'y':intpty[i]}
+        #         # not in the obj.
+        #         dist = np.sqrt((intptx[i] - obj_cent[0])**2+(intpty[i] - obj_cent[1])**2)
+        #         if dist >= obj_range:
+        #             fd = 3
+        #         else:
+        #             fd = 7 
+        #         bo.register(params=probePt_dict, target=fd) 
+        # plot_2d_wObj(k, bo, XY, 10, 0, "{:03}".format(len(bo._space.params)))
+        
+        ## [shceme 4] 
+        # ### cannot get into the object (virtually give fd max in the range of obj)
+        # intptx, intpty = gen_slide_path3(endPt=nextPt, startPt=curPt, d_c = 0.01)
+        # obj_xmin = 0.05
+        # obj_xmax = 0.1
+        # obj_ymin = 0.15
+        # obj_ymax = 0.2
+        # obj_cent = [(obj_xmin+obj_xmax)/2,(obj_ymin+obj_ymax)/2]
+        # obj_range = np.sqrt((obj_xmax-obj_xmin)**2+(obj_ymax-obj_ymin)**2)*0.8
+        # for i in range(len(intptx))[1:]:            
+        #     probePt_dict = {'x':intptx[i],'y':intpty[i]}
+        #     # not in the obj.
+        #     dist = np.sqrt((intptx[i] - obj_cent[0])**2+(intpty[i] - obj_cent[1])**2)
+        #     if dist >= obj_range:
+        #         fd = 3
+        #     else:
+        #         fd = 7 
+        #     bo.register(params=probePt_dict, target=fd) 
+        # # plot_2d_wObj(k, bo, XY, 10, 0, "{:03}".format(len(bo._space.params)))
+
+        ## [shceme 5] fd = 7N for pts in the object; fd = 3N for pts in the object
+        ### cannot get into the object (virtually give fd max in the obj)
+        intptx, intpty = gen_slide_path3(endPt=nextPt, startPt=curPt, d_c = 0.01)
+        obj_xmin = 0.05
+        obj_xmax = 0.1
+        obj_ymin = 0.15
+        obj_ymax = 0.2
+        obj_cent = [(obj_xmin+obj_xmax)/2,(obj_ymin+obj_ymax)/2]
+        obj_range = np.sqrt((obj_xmax-obj_xmin)**2+(obj_ymax-obj_ymin)**2)*0.8
+        for i in range(len(intptx))[1:]:
+            if not (obj_xmin-0.02 <= intptx[i] and intptx[i] <= obj_xmax+0.02 and obj_ymin-0.02 <= intpty[i] and intpty[i]<=obj_ymax+0.02):
+                # not in the obj.
+                fd = 3
+            else:
+                fd = 7 
+            probePt_dict = {'x':intptx[i],'y':intpty[i]}
+            bo.register(params=probePt_dict, target=fd) 
+        # plot_2d_wObj(k, bo, XY, 10, 0, "{:03}".format(len(bo._space.params)))
+
         if plotPath == 1:
             # plotInitSandBox(x,y,np.array(zls))
             ## plot the sliding path
@@ -534,7 +682,8 @@ if __name__ == '__main__':
         # probe goes to the nextPt
         curPt = {'x':ex,'y':ey}
         if k >=10 and k%10 ==0:
-        # if k >=1:
-            plot_2d(k, bo, XY, 7, f_sigma, "{:03}".format(len(bo._space.params)))
+        # # if k >=1:
+            # plot_2d(k, bo, XY, 7, f_sigma, "{:03}".format(len(bo._space.params)))
+            plot_2d_wObj(k, bo, XY, 10, 0, "{:03}".format(len(bo._space.params)))
 
     print('shut down')
