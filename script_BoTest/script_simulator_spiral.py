@@ -662,15 +662,17 @@ if __name__ == '__main__':
         obj_ymax = 0.2
         obj_cent = [(obj_xmin+obj_xmax)/2,(obj_ymin+obj_ymax)/2]
         obj_range = np.sqrt((obj_xmax-obj_xmin)**2+(obj_ymax-obj_ymin)**2)*0.8
+        obj_margin = 0.02
         for i in range(len(intptx))[1:]:
-            if not (obj_xmin-0.02 <= intptx[i] and intptx[i] <= obj_xmax+0.02 and obj_ymin-0.02 <= intpty[i] and intpty[i]<=obj_ymax+0.02):
+            if not (obj_xmin-obj_margin<= intptx[i] and intptx[i] <= obj_xmax+obj_margin and obj_ymin-obj_margin <= intpty[i] and intpty[i]<=obj_ymax+obj_margin):
                 # not in the obj.
                 fd = 3
             else:
                 fd = 7 
             probePt_dict = {'x':intptx[i],'y':intpty[i]}
             bo.register(params=probePt_dict, target=fd) 
-        # plot_2d_wObj(k, bo, XY, 10, 0, "{:03}".format(len(bo._space.params)))
+        # if k >=10:
+            # plot_2d_wObj(k, bo, XY, 10, 0, "{:03}".format(len(bo._space.params)))
 
         if plotPath == 1:
             # plotInitSandBox(x,y,np.array(zls))
