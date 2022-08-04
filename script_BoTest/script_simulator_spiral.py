@@ -253,9 +253,15 @@ def plot_2d_wObj(ite, bo, XY, f_max, f_sigma, name=None):
     im00 = ax[0][0].hexbin(x, y, C=mu, gridsize=gridsize, cmap=cm.jet, bins=None, vmin=0, vmax=f_max)
     ax[0][0].axis('scaled')
     ax[0][0].axis([x.min(), x.max(), y.min(), y.max()])
-    ax[0][0].plot(bo._space.params[:, 0], bo._space.params[:, 1], 'D', markersize=1, color='k', label='Observations')
+    ax[0][0].plot(bo._space.params[:, 0], bo._space.params[:, 1], '.', markersize=1, color='k', label='Observations')
     ax[0][0].plot([0.05,0.1,0.1,0.05,0.05],[0.15,0.15,0.2,0.2,0.15],'k-')
-    # ax[0][0].plot(xbd,ybd,'k-', lw=2, color='k')    
+    ## plot cur pos
+    ax[0][0].plot(bo._space.params[-1, 0], bo._space.params[-1, 1], 'x', markersize=5, color='k')
+    ## plot the next target
+    ax[0][0].plot(np.where(ut.reshape((175, 125)) == ut.max())[1]*0.25/125.,
+                np.where(ut.reshape((175, 125)) == ut.max())[0]*0.35/175.,
+                '*', markersize=5, color='k')
+    # ax[0][0].plot(xbd,ybd,'k-', lw=2, color='k')
     # plt.pause(0.1)
 
     ax[0][1].set_title('Target Function', fontdict={'size':15})
