@@ -7,13 +7,13 @@
 #    2.1 No object found after traj. then tell BOA 0 in raked area
 #    2.2 Find object: 
 #        1) tell BOA 0 at stop position
-#        2) probe: pull up -> move 1cm forward -> penetrate into GM
+#        2) probe: pull up -> move 1cm forward -> penetrate into GM:
 #            a. can penetrate: report false positive -> keep moving along spiral traj.
 #            b. cannot pentrate: tell BOA 1 at this pos -> repeat 2) step 
 # end of for-loop
 #
 # Z Zhang
-# 07/2022
+# 05/2023
 
 import numpy as np
 from bayes_opt import BayesianOptimization, UtilityFunction
@@ -695,10 +695,10 @@ if __name__ == '__main__':
         if plotPath == 1:
             # plotInitSandBox(x,y,np.array(zls))
             ## plot the sliding path
-            plt.plot(goalx,goaly,'k-') 
             plt.axis('scaled')
             plt.axis([0, 0.25, 0,0.35])    
             plt.pause(0.1)
+            plt.pause(1)
         
         # probe goes to the nextPt
         curPt = {'x':ex,'y':ey}
