@@ -567,6 +567,8 @@ if __name__ == '__main__':
     # random.seed(233)
     plotPath = 1
     A = 10728.
+    fig_path = plt.figure()
+    ax_path = fig_path.gca()
     for k in range(1,61):
         print("--------- {}-th slide ---------".format(k))
         ######### cal. goal by BOA #########        
@@ -695,9 +697,9 @@ if __name__ == '__main__':
         if plotPath == 1:
             # plotInitSandBox(x,y,np.array(zls))
             ## plot the sliding path
-            plt.axis('scaled')
-            plt.axis([0, 0.25, 0,0.35])    
-            plt.pause(0.1)
+            ax_path.plot(goalx,goaly,'k-') 
+            ax_path.axis('scaled')
+            ax_path.axis([0, 0.25, 0,0.35])    
             plt.pause(1)
         
         # probe goes to the nextPt
